@@ -1,0 +1,35 @@
+services:
+  web-app:
+    build: .
+    container_name: web-app
+    environment:
+      - NODE_ENV=$STAGE
+      - DB_HOST=postgresdb
+      - DB_USER=$POSTGRES_USER
+      - DB_PASSWORD=$POSTGRES_ROOT_PASSWORD
+      - DB_NAME=$POSTGRES_DATABASE
+      - DB_PORT=$POSTGRESDB_DOCKER_PORT
+    ports:
+      - target: $NODE_DOCKER_PORT
+        published: $NODE_LOCAL_PORT
+    env_file:
+      - .env
+    depends_on:
+      - pg
+
+  pg-service:
+    image: postgres:15-alpine
+    container_name: pg
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_ROOT_PASSWORD
+      POSTGRES_DB: $POSTGRES_DATABASE
+    ports:
+    - $POSTGRESDB_LOCAL_PORT:$POSTGRESDB_DOCKER_PORT
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+volumes:
+  pgdata:
